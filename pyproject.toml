@@ -12,6 +12,7 @@ flask-sqlalchemy = "^3.1.1"
 flask-cors = "^5.0.0"
 werkzeug = "^3.0.6"
 flask-uuid = "^0.2"
+flask-login = "^0.6.3"
 
 
 [build-system]
