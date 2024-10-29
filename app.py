@@ -74,7 +74,7 @@ def update_user(user_id):
 def delete_user(user_id):
     user = User.query.get(user_id)
     if user_id == current_user.id:
-        return jsonify({"message": "Ação não permitida"}), 403
+        return jsonify({"message": "Username já existente"}), 403
     if user:
         db.session.delete(user)
         db.session.commit()
