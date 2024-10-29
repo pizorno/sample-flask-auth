@@ -7,7 +7,8 @@ from flask_login import (LoginManager, login_user, logout_user,
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "your_secret_key"
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.sqlite"
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    "mysql+pymysql://root:admin123@127.0.0.1:3306/flask-crud"
 
 login_manager = LoginManager()
 
@@ -38,6 +39,9 @@ def logout():
 @app.route('/user', methods=['POST'])
 def create_user():
     data = request.json
+    user = User.query.filter_by(username=data.get("username")).first()
+    if data["username"] == user.username:
+        return jsonify({"message": "Ação não permitida"}), 403
     if data["username"] and data["password"]:
         user = User(username=data.get("username"),
                     password=data.get("password"))
