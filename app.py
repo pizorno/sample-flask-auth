@@ -41,7 +41,7 @@ def create_user():
     data = request.json
     user = User.query.filter_by(username=data.get("username")).first()
     if data["username"] == user.username:
-        return jsonify({"message": "Ação não permitida"}), 403
+        return jsonify({"message": "Ação não permitida"}),403
     if data["username"] and data["password"]:
         user = User(username=data.get("username"),
                     password=data.get("password"))
