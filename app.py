@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
 from sqlalchemy.sql.functions import current_user
+from werkzeug.security import gen_salt
+
 from models.user import User
 from database import db
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
+import bcrypt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "your_secret_key"
@@ -25,7 +28,8 @@ def login():
     data = request.json
     if data["username"] and data["password"]:
         user = User.query.filter_by(username=data.get("username")).first()
-        if user and user.password == data.get("password"):
+        if user and bcrypt.checkpw(str.encode(data["password"]), str.encode(
+                user.password)):
             login_user(user)
             return jsonify({"message": "Autenticação realizada com sucesso"})
     return jsonify({"message": "Credenciais inválidas"}), 400
@@ -44,7 +48,8 @@ def create_user():
         return jsonify({"message": "Ação não permitida"}),403
     if data["username"] and data["password"]:
         user = User(username=data.get("username"),
-                    password=data.get("password"))
+                    password=bcrypt.hashpw(str.encode(data["password"]),
+                                           bcrypt.gensalt(14)))
         db.session.add(user)
         db.session.commit()
         return jsonify({"message": "Usuário cadastrado com sucesso"})
@@ -66,7 +71,8 @@ def update_user(user_id):
     if current_user.role == "user" and current_user.id != user_id:
         return jsonify({"message": "Operação não permitida"}), 403
     if user and data["password"]:
-        user.password = data.get("password")
+        user.password = bcrypt.hashpw(str.encode(data["password"]),
+                                      bcrypt.gensalt(14))
         db.session.commit()
         return jsonify({"message": f"Usuário {user_id} atualizado com sucesso"})
     return jsonify({"message": "Usuário não encontrado"}), 404
