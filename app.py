@@ -40,7 +40,7 @@ def logout():
 def create_user():
     data = request.json
     user = User.query.filter_by(username=data.get("username")).first()
-    if data["username"] == user.username:
+    if user and data["username"] == user.username:
         return jsonify({"message": "Ação não permitida"}),403
     if data["username"] and data["password"]:
         user = User(username=data.get("username"),
@@ -63,6 +63,8 @@ def read_user(user_id):
 def update_user(user_id):
     data = request.json
     user = User.query.get(user_id)
+    if current_user.role == "user" and current_user.id != user_id:
+        return jsonify({"message": "Operação não permitida"}), 403
     if user and data["password"]:
         user.password = data.get("password")
         db.session.commit()
@@ -73,8 +75,10 @@ def update_user(user_id):
 @login_required
 def delete_user(user_id):
     user = User.query.get(user_id)
+    if current_user.role == "user" and current_user.id != user_id:
+        return jsonify({"message": "Operação não permitida"}), 403
     if user_id == current_user.id:
-        return jsonify({"message": "Username já existente"}), 403
+        return jsonify({"message": "Operação não permitida"}), 403
     if user:
         db.session.delete(user)
         db.session.commit()
