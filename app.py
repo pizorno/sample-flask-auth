@@ -1,7 +1,5 @@
 from flask import Flask, request, jsonify
 from sqlalchemy.sql.functions import current_user
-from werkzeug.security import gen_salt
-
 from models.user import User
 from database import db
 from flask_login import (LoginManager, login_user, logout_user,
